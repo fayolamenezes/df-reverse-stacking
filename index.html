@@ -95,6 +95,7 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
       flex-shrink: 0;
       z-index: 1;
+      transition: transform 0.3s ease;
     }
 
     @media (max-width: 768px) {
@@ -121,14 +122,14 @@
 
   <section class="card-zoom-section">
     <div class="card-zoom-inner">
-      <div class="heading-overlay heading-1">
-        <h1>Everything in one place</h1>
-        <p>Fully-featured email client, CRM, task manager and more integrated with Gmail, Calendar, LinkedIn, WhatsApp and other tools. Plus the ability to create pipeline trackers, project management tools and more on top of this data.</p>
-      </div>
-
       <div class="heading-overlay heading-2">
         <h1>Automatically Updated</h1>
         <p>Everything - companies, people, and more - is enriched with hundreds of datapoints from a rich global and personal knowledge graph. Plus any property can be updated automatically when there's new email or meeting activity.</p>
+      </div>
+
+      <div class="heading-overlay heading-1">
+        <h1>Everything in one place</h1>
+        <p>Fully-featured email client, CRM, task manager and more integrated with Gmail, Calendar, LinkedIn, WhatsApp and other tools. Plus the ability to create pipeline trackers, project management tools and more on top of this data.</p>
       </div>
 
       <div class="card-zoom-container">
@@ -151,11 +152,18 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    const container = document.querySelector(".card-zoom-container");
     const cards = document.querySelectorAll(".card");
+    const container = document.querySelector(".card-zoom-container");
 
+    // Set initial states
     gsap.set(".heading-1", { opacity: 0, x: -50, scale: 0.9 });
     gsap.set(".heading-2", { opacity: 0, x: -50, scale: 0.9 });
+
+    // Hide all cards except 3, 4, 5
+    gsap.set([cards[0], cards[1], cards[5], cards[6]], { opacity: 0, y: 100 });
+    gsap.set([cards[2], cards[4]], { opacity: 0, y: 100, scale: 1 });
+    gsap.set(cards[3], { scale: 1.6, y: -120, zIndex: 10 });
+    gsap.set(container, { scale: 1.2 });
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -167,62 +175,76 @@
       }
     });
 
-    tl.to(".heading-1", {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      duration: 0.5
+    // Step 1: Bring Card 4 to center
+    tl.to(cards[3], {
+      y: 0,
+      scale: 1.35,
+      duration: 0.5,
+      ease: "power2.out"
     });
 
-    tl.to(container, { scale: 1.2 }, "<");
-
-    tl.to(".heading-1", {
-      opacity: 0,
-      x: 50,
-      scale: 0.9,
-      duration: 0.5
-    });
-
-    tl.to([cards[0], cards[1], cards[5], cards[6]], {
-      opacity: 0,
-      y: 100
-    });
-
-    tl.to(".heading-2", {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      duration: 0.3
-    }, "<");
-
-    tl.to(".heading-2", {
-      opacity: 0,
-      x: 50,
-      scale: 0.9,
-      duration: 0.3
-    });
-
+    // Step 2: Bring Cards 3 and 5 beside it
     tl.to([cards[2], cards[4]], {
+      opacity: 1,
+      y: 0,
       x: (i) => (i === 0 ? -80 : 80),
-      scale: 1.3
-    });
-
-    tl.to(cards[3], {
-      scale: 1.35
+      scale: 1.25,
+      duration: 0.4,
+      ease: "power2.out"
     }, "<");
 
-    tl.to([cards[2], cards[4]], {
+    // Step 3: Show Heading 2
+    tl.to(".heading-2", {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      duration: 0.4
+    });
+
+    // Step 4: Hide Heading 2
+    tl.to(".heading-2", {
       opacity: 0,
-      y: 100
+      x: 50,
+      scale: 0.9,
+      duration: 0.3
     });
 
-    tl.set(cards[3], { zIndex: 10 });
-
-    tl.to(cards[3], {
-      y: -200,
-      scale: 1.6
+    // Step 5: Reveal remaining cards
+    tl.to([cards[0], cards[1], cards[5], cards[6]], {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      ease: "power1.out"
     });
 
+// Step 6: Normalize all cards
+tl.to(container, {
+  scale: 1,
+  duration: 0.3
+}, "<");
+
+// Reset all cards to default position/scale/zIndex
+tl.to(cards, {
+  scale: 1,
+  x: 0,
+  y: 0,
+  zIndex: 1,
+  duration: 0.3
+}, "<");
+
+
+    // Reset zIndex so no cards stay on top
+    tl.set(cards[3], { zIndex: 1 });
+
+    // Step 7: Show Heading 1
+    tl.to(".heading-1", {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      duration: 0.5
+    });
+
+    // Smooth scroll with Lenis
     const lenis = new Lenis({
       duration: 1.2,
       easing: t => t,
