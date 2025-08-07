@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Zoom Scroll Effect</title>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.37/bundled/lenis.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .top-spacer {
+      height: 10vh;
+    }
+
+    .spacer {
+      height: 100vh;
+    }
+
+    .card-zoom-section {
+      height: 400vh;
+      position: relative;
+    }
+
+    .card-zoom-inner {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
+
+    .heading-overlay {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      width: 45%;
+      max-width: 600px;
+      text-align: left;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .heading-overlay h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    .heading-overlay p {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-top: 0.5rem;
+    }
+
+    .card-zoom-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: nowrap;
+      transform-origin: center center;
+      max-width: 100%;
+      padding-top: 10vh;
+    }
+
+    .card {
+      width: 12vw;
+      min-width: 150px;
+      max-width: 180px;
+      height: 180px;
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        width: 18vw;
+      }
+
+      .heading-overlay {
+        width: 90%;
+        left: 5%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        width: 22vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-spacer"></div>
+
+  <section class="card-zoom-section">
+    <div class="card-zoom-inner">
+      <div class="heading-overlay heading-1">
+        <h1>Everything in one place</h1>
+        <p>Fully-featured email client, CRM, task manager and more integrated with Gmail, Calendar, LinkedIn, WhatsApp and other tools. Plus the ability to create pipeline trackers, project management tools and more on top of this data.</p>
+      </div>
+
+      <div class="heading-overlay heading-2">
+        <h1>Automatically Updated</h1>
+        <p>Everything - companies, people, and more - is enriched with hundreds of datapoints from a rich global and personal knowledge graph. Plus any property can be updated automatically when there's new email or meeting activity.</p>
+      </div>
+
+      <div class="card-zoom-container">
+        <div class="card">Card 1</div>
+        <div class="card">Card 2</div>
+        <div class="card">Card 3</div>
+        <div class="card">Card 4</div>
+        <div class="card">Card 5</div>
+        <div class="card">Card 6</div>
+        <div class="card">Card 7</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    const container = document.querySelector(".card-zoom-container");
+    const cards = document.querySelectorAll(".card");
+
+    gsap.set(".heading-1", { opacity: 0, x: -50, scale: 0.9 });
+    gsap.set(".heading-2", { opacity: 0, x: -50, scale: 0.9 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".card-zoom-section",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        pin: ".card-zoom-inner"
+      }
+    });
+
+    tl.to(".heading-1", {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      duration: 0.5
+    });
+
+    tl.to(container, { scale: 1.2 }, "<");
+
+    tl.to(".heading-1", {
+      opacity: 0,
+      x: 50,
+      scale: 0.9,
+      duration: 0.5
+    });
+
+    tl.to([cards[0], cards[1], cards[5], cards[6]], {
+      opacity: 0,
+      y: 100
+    });
+
+    tl.to(".heading-2", {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      duration: 0.3
+    }, "<");
+
+    tl.to(".heading-2", {
+      opacity: 0,
+      x: 50,
+      scale: 0.9,
+      duration: 0.3
+    });
+
+    tl.to([cards[2], cards[4]], {
+      x: (i) => (i === 0 ? -80 : 80),
+      scale: 1.3
+    });
+
+    tl.to(cards[3], {
+      scale: 1.35
+    }, "<");
+
+    tl.to([cards[2], cards[4]], {
+      opacity: 0,
+      y: 100
+    });
+
+    tl.set(cards[3], { zIndex: 10 });
+
+    tl.to(cards[3], {
+      y: -200,
+      scale: 1.6
+    });
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: t => t,
+      smooth: true,
+      gestureDirection: "vertical",
+      smoothTouch: true,
+      touchMultiplier: 2,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+  </script>
+
+</body>
+</html>
